@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function Hero() {
   return (
     <section id="home" className="border-b border-slate-800">
@@ -50,12 +52,12 @@ export function Hero() {
               A selection of projects I&apos;ve built, spanning full-stack apps, tools, and
               experiments.
             </p>
-            <a
-              href="#projects"
+            <Link
+              to="/projects"
               className="mt-3 inline-block text-sm font-semibold text-slate-100 underline underline-offset-4 hover:text-indigo-400"
             >
               Browse projects →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

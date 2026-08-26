@@ -10,6 +10,20 @@ async function main() {
         tags: ["TypeScript", "React", "Express", "PostgreSQL"],
         featured: true,
       },
+      {
+        title: "VPN Hook-Up System",
+        description: "Open-source system for hooking up VPN access to a home lab.",
+        repoUrl: "https://github.com/wdekeizer/Home-Lab-AI",
+        tags: ["VPN", "Networking", "Self-Hosted"],
+        featured: true,
+      },
+      {
+        title: "Local AI Server",
+        description: "A local AI server with a web UI for running LLMs on your own hardware.",
+        repoUrl: "https://github.com/wdekeizer/WebUI-Local-LLM",
+        tags: ["AI", "LLM", "Self-Hosted"],
+        featured: true,
+      },
     ],
   });
 }

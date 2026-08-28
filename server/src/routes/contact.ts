@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import { sendContactNotification } from "../mailer.js";
 import { prisma } from "../prisma.js";
 
 export const contactRouter = Router();
@@ -17,5 +18,10 @@ contactRouter.post("/", async (req, res) => {
     return;
   }
   const saved = await prisma.contactMessage.create({ data: parsed.data });
+  try {
+    await sendContactNotification(parsed.data);
+  } catch (err) {
+    console.error("Failed to send contact notification email:", err);
+  }
   res.status(201).json(saved);
 });

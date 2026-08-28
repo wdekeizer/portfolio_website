@@ -4,12 +4,12 @@ Portfolio site showcasing coding projects.
 
 - **Frontend**: React + TypeScript, built with Vite, styled with Tailwind CSS (`client/`)
 - **Backend**: Node/Express + TypeScript, Prisma ORM (`server/`)
-- **Database**: PostgreSQL
+- **Database**: MySQL
 
 ## Prerequisites
 
 - Node.js 20+
-- A running local PostgreSQL server
+- A running local MySQL server
 
 ## Setup
 

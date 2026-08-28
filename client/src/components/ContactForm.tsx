@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../lib/api";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
@@ -12,7 +13,7 @@ export function ContactForm() {
 
     setStatus("submitting");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(apiUrl("/api/contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

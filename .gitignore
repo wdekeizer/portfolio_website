@@ -1,5 +1,7 @@
 node_modules/
 dist/
+server/public/
+server-php/api/config.php
 .env
 *.local
 .DS_Store

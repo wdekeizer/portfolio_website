@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteRule ^api/health/?$ api/health.php [L,QSA]
+RewriteRule ^api/contact/?$ api/contact.php [L,QSA]
+RewriteRule ^api/projects/([^/]+)/?$ api/projects.php?id=$1 [L,QSA]
+RewriteRule ^api/projects/?$ api/projects.php [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const links = [
   { to: "/", label: "Home" },
   { to: "/projects", label: "Projects" },
-  { to: "/cool-stuff", label: "Cool Stuff" },
+  { to: "/misc-items", label: "Misc. Items" },
 ];
 
 export function NavBar() {

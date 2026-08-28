@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { NavBar } from "../components/NavBar";
 
-export function CoolStuffPage() {
+export function MiscItemsPage() {
   return (
     <div className="min-h-screen">
       <NavBar />
@@ -16,7 +16,7 @@ export function CoolStuffPage() {
           Back to home
         </Link>
 
-        <h1 className="mb-4 text-3xl font-bold text-slate-50">Cool Stuff</h1>
+        <h1 className="mb-4 text-3xl font-bold text-slate-50">Misc. Items</h1>
         <p className="text-sm text-slate-500">
           A corner for minigames and other fun experiments. Nothing here yet — check back soon.
         </p>

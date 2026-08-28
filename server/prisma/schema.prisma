@@ -3,17 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Project {
   id          String   @id @default(cuid())
-  title       String
-  description String
-  repoUrl     String?
-  liveUrl     String?
-  tags        String[]
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  repoUrl     String?  @db.VarChar(500)
+  liveUrl     String?  @db.VarChar(500)
+  tags        Json     @default("[]")
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -21,8 +21,8 @@ model Project {
 
 model ContactMessage {
   id        String   @id @default(cuid())
-  name      String
-  email     String
-  message   String
+  name      String   @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  message   String   @db.Text
   createdAt DateTime @default(now())
 }

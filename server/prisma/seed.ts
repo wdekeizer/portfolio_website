@@ -5,9 +5,9 @@ async function main() {
     data: [
       {
         title: "Portfolio Website",
-        description: "This site — a React/Vite frontend with an Express + PostgreSQL API.",
+        description: "This site — a React/Vite frontend with an Express + MySQL API.",
         repoUrl: "https://github.com/wdekeizer/website",
-        tags: ["TypeScript", "React", "Express", "PostgreSQL"],
+        tags: ["TypeScript", "React", "Express", "MySQL"],
         featured: true,
       },
       {

@@ -6,7 +6,7 @@ async function main() {
       {
         title: "Portfolio Website",
         description: "This site — a React/Vite frontend with an Express + MySQL API.",
-        repoUrl: "https://github.com/wdekeizer/website",
+        repoUrl: "https://github.com/wdekeizer/portfolio_website",
         tags: ["TypeScript", "React", "Express", "MySQL"],
         featured: true,
       },

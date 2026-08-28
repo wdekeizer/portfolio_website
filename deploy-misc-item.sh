@@ -2,12 +2,14 @@
 set -euo pipefail
 
 # Deploys a standalone project (a game, experiment, etc.) to its own subfolder
-# under /lab/ on the live site, independent of the main website repo. Linked
-# to from the "Misc. Items" page. (Deployed under /lab/ rather than
-# /misc-items/ to avoid colliding with the React app's own /misc-items route.)
+# under /lab/ on the live site, independent of the main website repo, and
+# registers it in a manifest.json that the "Misc. Items" page reads at
+# runtime — so no code change or redeploy of the main site is needed to add
+# or update an entry. (Deployed under /lab/ rather than /misc-items/ to avoid
+# colliding with the React app's own /misc-items route.)
 #
-# Usage: ./deploy-misc-item.sh <slug> <path-to-built-dist-folder>
-#   ./deploy-misc-item.sh snake ~/code/snake-game/dist
+# Usage: ./deploy-misc-item.sh <slug> <path-to-built-dist-folder> "<title>" ["<description>"]
+#   ./deploy-misc-item.sh snake ~/code/snake-game/dist "Snake" "Classic snake, built with Canvas"
 #
 # The project can be anything (plain HTML/JS, Vite, whatever) as long as
 # <dist-folder> contains a self-contained static site with an index.html.
@@ -16,13 +18,15 @@ set -euo pipefail
 # Reads connection details from deploy.env (gitignored) next to this script,
 # same file used by deploy.sh.
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <slug> <path-to-built-dist-folder>" >&2
+if [ $# -lt 3 ]; then
+  echo "Usage: $0 <slug> <path-to-built-dist-folder> \"<title>\" [\"<description>\"]" >&2
   exit 1
 fi
 
 SLUG="$1"
 DIST_DIR="$2"
+TITLE="$3"
+DESCRIPTION="${4:-}"
 
 if [[ ! "$SLUG" =~ ^[a-z0-9-]+$ ]]; then
   echo "Slug must be lowercase letters, numbers, and hyphens only (got: $SLUG)" >&2
@@ -33,6 +37,8 @@ if [ ! -d "$DIST_DIR" ] || [ ! -f "$DIST_DIR/index.html" ]; then
   echo "Error: $DIST_DIR doesn't exist or has no index.html" >&2
   exit 1
 fi
+
+command -v jq >/dev/null || { echo "jq is required (brew install jq)" >&2; exit 1; }
 
 cd "$(dirname "$0")"
 
@@ -49,11 +55,25 @@ fi
 REMOTE_BASE="domains/williamdekeizer.com/public_html/lab"
 REMOTE_DIR="${REMOTE_BASE}/${SLUG}"
 
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+echo "Fetching current manifest..."
+FETCH_BATCH="$WORK_DIR/fetch.sftp"
+{
+  echo "-get ${REMOTE_BASE}/manifest.json ${WORK_DIR}/manifest.json"
+} > "$FETCH_BATCH"
+sftp -P "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" < "$FETCH_BATCH" >/dev/null
+
+[ -f "$WORK_DIR/manifest.json" ] || echo "[]" > "$WORK_DIR/manifest.json"
+
+echo "Updating manifest entry for '${SLUG}'..."
+jq --arg slug "$SLUG" --arg title "$TITLE" --arg description "$DESCRIPTION" '
+  map(select(.slug != $slug)) + [{slug: $slug, title: $title, description: $description}]
+' "$WORK_DIR/manifest.json" > "$WORK_DIR/manifest.updated.json"
+
 echo "Uploading ${DIST_DIR} to https://williamdekeizer.com/lab/${SLUG}/ ..."
-
-BATCH_FILE="$(mktemp)"
-trap 'rm -f "$BATCH_FILE"' EXIT
-
+PUSH_BATCH="$WORK_DIR/push.sftp"
 {
   echo "-mkdir ${REMOTE_BASE}"
   echo "-mkdir ${REMOTE_DIR}"
@@ -67,8 +87,12 @@ trap 'rm -f "$BATCH_FILE"' EXIT
       echo "put ${name}"
     fi
   done
-} > "$BATCH_FILE"
+  echo "cd ${REMOTE_BASE}"
+  echo "lcd ${WORK_DIR}"
+  echo "put manifest.updated.json manifest.json"
+} > "$PUSH_BATCH"
 
-sftp -P "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" < "$BATCH_FILE"
+sftp -P "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" < "$PUSH_BATCH"
 
 echo "Done. Live at https://williamdekeizer.com/lab/${SLUG}/"
+echo "It will appear on the Misc. Items page automatically."

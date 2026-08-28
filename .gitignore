@@ -2,6 +2,7 @@ node_modules/
 dist/
 server/public/
 server-php/api/config.php
+deploy.env
 .env
 *.local
 .DS_Store

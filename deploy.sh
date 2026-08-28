@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deploys the static client build + PHP API to Hostinger over SSH/rsync.
+# Deploys the static client build + PHP API to Hostinger over SFTP.
 # Requires SSH access enabled in hPanel (Advanced > SSH Access).
+# Uses plain SFTP rather than rsync because Hostinger shared hosting accounts
+# use a restricted login shell (no shell exec), which breaks rsync-over-ssh.
 #
 # Usage: ./deploy.sh
 # Reads connection details from deploy.env (gitignored) next to this script,
@@ -27,16 +29,36 @@ npm run build:client
 
 echo "Assembling deploy bundle..."
 rm -rf .deploy_staging
-mkdir -p .deploy_staging
+mkdir -p .deploy_staging/api
 cp -r client/dist/. .deploy_staging/
-cp -r server-php/api .deploy_staging/
 cp server-php/htaccess-snippet.txt .deploy_staging/.htaccess
+for f in server-php/api/*.php; do
+  base="$(basename "$f")"
+  # config.php holds live secrets and already exists on the server; never overwrite it from here.
+  if [ "$base" = "config.php" ] || [ "$base" = "config.example.php" ]; then
+    continue
+  fi
+  cp "$f" ".deploy_staging/api/$base"
+done
 
-echo "Syncing to Hostinger (config.php on the server is left untouched)..."
-rsync -avz --delete \
-  --exclude 'api/config.php' \
-  -e "ssh -p ${HOSTINGER_SSH_PORT}" \
-  .deploy_staging/ "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${REMOTE_PATH}/"
+echo "Uploading via SFTP..."
+BATCH_FILE="$(mktemp)"
+trap 'rm -f "$BATCH_FILE"' EXIT
+
+{
+  echo "cd ${REMOTE_PATH}"
+  echo "lcd .deploy_staging"
+  for entry in .deploy_staging/*; do
+    name="$(basename "$entry")"
+    if [ -d "$entry" ]; then
+      echo "put -r ${name}"
+    else
+      echo "put ${name}"
+    fi
+  done
+} > "$BATCH_FILE"
+
+sftp -P "${HOSTINGER_SSH_PORT}" "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" < "$BATCH_FILE"
 
 rm -rf .deploy_staging
 

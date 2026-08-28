@@ -1,6 +1,15 @@
 import { Link } from "react-router-dom";
 import { NavBar } from "../components/NavBar";
 
+interface MiscItem {
+  title: string;
+  description: string;
+  slug: string;
+}
+
+// Add an entry here after deploying a new project with ./deploy-misc-item.sh <slug> <dist-dir>
+const items: MiscItem[] = [];
+
 export function MiscItemsPage() {
   return (
     <div className="min-h-screen">
@@ -17,9 +26,26 @@ export function MiscItemsPage() {
         </Link>
 
         <h1 className="mb-4 text-3xl font-bold text-slate-50">Misc. Items</h1>
-        <p className="text-sm text-slate-500">
-          A corner for minigames and other fun experiments. Nothing here yet — check back soon.
+        <p className="mb-8 text-sm text-slate-500">
+          A corner for minigames and other fun experiments.
         </p>
+
+        {items.length === 0 ? (
+          <p className="text-sm text-slate-500">Nothing here yet — check back soon.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {items.map((item) => (
+              <a
+                key={item.slug}
+                href={`/lab/${item.slug}/`}
+                className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/60 p-5 hover:border-slate-700"
+              >
+                <h3 className="text-lg font-semibold text-slate-50">{item.title}</h3>
+                <p className="text-sm text-slate-400">{item.description}</p>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

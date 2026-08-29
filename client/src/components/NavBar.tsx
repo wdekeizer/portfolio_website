@@ -24,9 +24,9 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <a href="/#contact" className="hover:text-slate-50">
+          <Link to="/#contact" className="hover:text-slate-50">
             Contact
-          </a>
+          </Link>
         </nav>
 
         <button
@@ -53,13 +53,13 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
-          <a
-            href="/#contact"
+          <Link
+            to="/#contact"
             onClick={() => setOpen(false)}
             className="py-2 text-sm text-slate-300 hover:text-slate-50"
           >
             Contact
-          </a>
+          </Link>
         </nav>
       )}
     </header>

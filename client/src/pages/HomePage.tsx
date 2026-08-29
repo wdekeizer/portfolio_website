@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ContactForm } from "../components/ContactForm";
 import { Hero } from "../components/Hero";
 import { NavBar } from "../components/NavBar";
@@ -11,6 +12,16 @@ export function HomePage() {
   const { projects, error } = useProjects();
   const featured = projects.filter((p) => p.featured).slice(0, MAX_FEATURED);
   const shown = featured.length > 0 ? featured : projects.slice(0, MAX_FEATURED);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.querySelector(location.hash);
+      el?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [location]);
 
   return (
     <div className="min-h-screen">
